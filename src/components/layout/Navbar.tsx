@@ -43,7 +43,8 @@ const Navbar = ({
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  const handleAdminClick = () => {
+  const handleAdminClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Previne a navegação padrão
     const token = localStorage.getItem('adminToken');
     if (token) {
       navigate('/admin');
@@ -119,24 +120,24 @@ const Navbar = ({
             </Button>
           </Link>
 
-          {isAdmin && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={handleAdminClick}
-                  >
-                    <Shield className="h-5 w-5 text-primary" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Painel Administrativo</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
+          {/* Botão de Admin com verificação de autenticação */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={handleAdminClick}
+                  className="relative"
+                >
+                  <Shield className="h-5 w-5 text-primary" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Painel Administrativo</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
           <TooltipProvider>
             <Tooltip>
@@ -165,6 +166,7 @@ const Navbar = ({
         </div>
       </nav>
 
+      {/* Modal de Login Administrativo */}
       <AdminLoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
