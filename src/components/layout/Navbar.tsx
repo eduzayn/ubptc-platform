@@ -44,7 +44,7 @@ const Navbar = ({
   const navigate = useNavigate();
 
   const handleAdminClick = (e: React.MouseEvent) => {
-    e.preventDefault(); // Previne a navegação padrão
+    e.preventDefault();
     const token = localStorage.getItem('adminToken');
     if (token) {
       navigate('/admin');
@@ -134,7 +134,7 @@ const Navbar = ({
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Painel Administrativo</p>
+                <p>Acesso Administrativo</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
