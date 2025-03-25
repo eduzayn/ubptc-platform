@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,14 +16,14 @@ import { formatCPF } from '@/lib/utils';
 interface AdminLoginModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLogin: (email: string, cpf: string) => Promise<void>;
 }
 
-export function AdminLoginModal({ isOpen, onClose, onLogin }: AdminLoginModalProps) {
+export function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProps) {
   const [email, setEmail] = useState('');
   const [cpf, setCpf] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,9 +31,24 @@ export function AdminLoginModal({ isOpen, onClose, onLogin }: AdminLoginModalPro
     setIsLoading(true);
 
     try {
-      await onLogin(email, cpf);
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, cpf }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Credenciais inválidas');
+      }
+
+      const { token } = await response.json();
+      localStorage.setItem('adminToken', token);
       setEmail('');
       setCpf('');
+      onClose();
+      navigate('/admin');
     } catch (error) {
       setError('Credenciais inválidas. Por favor, tente novamente.');
     } finally {
