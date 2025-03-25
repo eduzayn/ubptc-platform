@@ -1,132 +1,97 @@
-import * as React from "react";
-import { Link } from "react-router-dom";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
-import { cn } from "@/lib/utils";
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Shield, Menu } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { AdminLoginModal } from '@/components/admin/AdminLoginModal';
+import { Logo } from '@/components/Logo';
+import { MobileNav } from '@/components/MobileNav';
+import { MainNav } from '@/components/MainNav'; // Nova importação
 
-const components: { title: string; href: string; description: string }[] = [
-  {
-    title: "Cursos",
-    href: "/courses",
-    description: "Explore nossa biblioteca de cursos e treinamentos especializados.",
-  },
-  {
-    title: "Biblioteca",
-    href: "/library",
-    description: "Acesse artigos, publicações e recursos acadêmicos.",
-  },
-  {
-    title: "Comunidade",
-    href: "/community",
-    description: "Conecte-se com outros profissionais e participe de discussões.",
-  },
-  {
-    title: "Eventos",
-    href: "/calendar",
-    description: "Confira nosso calendário de eventos e atividades.",
-  },
-  {
-    title: "Associação",
-    href: "/association",
-    description: "Saiba mais sobre como se tornar um membro da UBPTC.",
-  },
-];
+interface NavbarProps {
+  onMenuToggle?: () => void;
+  username?: string;
+  avatarUrl?: string;
+  notificationCount?: number;
+  isAdmin?: boolean;
+  onLogout?: () => void;
+}
 
-export function MainNav() {
+export function Navbar({
+  onMenuToggle,
+  username,
+  avatarUrl,
+  notificationCount = 0,
+  isAdmin,
+  onLogout
+}: NavbarProps) {
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  const handleAdminClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsLoginModalOpen(true);
+  };
+
   return (
-    <NavigationMenu>
-      <NavigationMenuList>
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>Início</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-              <li className="row-span-3">
-                <NavigationMenuLink asChild>
-                  <Link
-                    className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                    to="/"
-                  >
-                    <div className="mb-2 mt-4 text-lg font-medium">
-                      UBPTC
-                    </div>
-                    <p className="text-sm leading-tight text-muted-foreground">
-                      União Brasileira de Profissionais em Terapia Cognitiva
-                    </p>
-                  </Link>
-                </NavigationMenuLink>
-              </li>
-              <ListItem href="/profile" title="Meu Perfil">
-                Gerencie seu perfil, documentos e credenciais.
-              </ListItem>
-              <ListItem href="/my-courses" title="Meus Cursos">
-                Acesse seus cursos e acompanhe seu progresso.
-              </ListItem>
-              <ListItem href="/profile/settings" title="Configurações">
-                Ajuste suas preferências e configurações de conta.
-              </ListItem>
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>Recursos</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-[600px] gap-3 p-4 md:grid-cols-2">
-              {components.map((component) => (
-                <ListItem
-                  key={component.title}
-                  title={component.title}
-                  href={component.href}
-                >
-                  {component.description}
-                </ListItem>
-              ))}
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <Link to="/about">
-            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-              Sobre
-            </NavigationMenuLink>
-          </Link>
-        </NavigationMenuItem>
-      </NavigationMenuList>
-    </NavigationMenu>
+    <>
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <nav className="container flex h-14 items-center">
+          <div className="mr-4 hidden md:flex">
+            <Link to="/" className="mr-6 flex items-center space-x-2">
+              <Logo />
+            </Link>
+            <MainNav /> {/* Substituído o menu antigo pelo novo MainNav */}
+          </div>
+          
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                className="mr-2 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
+                onClick={onMenuToggle}
+              >
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle Menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="pr-0">
+              <MobileNav />
+            </SheetContent>
+          </Sheet>
+
+          <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+            <div className="w-full flex-1 md:w-auto md:flex-none">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleAdminClick}
+                className="relative"
+              >
+                <Shield className="h-5 w-5 text-primary" />
+              </Button>
+            </div>
+
+            {isAdmin && username && (
+              <div className="flex items-center space-x-4">
+                <span className="text-sm font-medium">{username}</span>
+                {onLogout && (
+                  <Button variant="outline" size="sm" onClick={onLogout}>
+                    Sair
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+        </nav>
+      </header>
+
+      <AdminLoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+      />
+    </>
   );
 }
 
-const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a"> & { title: string }
->(({ className, title, children, href, ...props }, ref) => {
-  return (
-    <li>
-      <NavigationMenuLink asChild>
-        <Link
-          ref={ref as any}
-          className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-            className
-          )}
-          to={href || "#"}
-          {...props}
-        >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-            {children}
-          </p>
-        </Link>
-      </NavigationMenuLink>
-    </li>
-  );
-});
-ListItem.displayName = "ListItem";
-
-export default MainNav;
+export default Navbar;
