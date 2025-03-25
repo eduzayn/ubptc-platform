@@ -1,22 +1,21 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { Shield, Menu } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { AdminLoginModal } from '@/components/admin/AdminLoginModal'
-import { Logo } from '@/components/Logo'
-import { MobileNav } from '@/components/MobileNav'
-import { MainNav } from '@/components/MainNav'
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Shield, Menu } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { AdminLoginModal } from '@/components/admin/AdminLoginModal';
+import { Logo } from '@/components/Logo';
+import { MobileNav } from '@/components/MobileNav';
+import { MainNav } from '@/components/MainNav';
 
 export function Navbar() {
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
-  const navigate = useNavigate()
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleAdminClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsLoginModalOpen(true)
-  }
+    e.preventDefault();
+    setIsLoginModalOpen(true);
+  };
 
   return (
     <>
@@ -66,19 +65,19 @@ export function Navbar() {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ email, cpf })
-            })
+            });
 
-            if (!response.ok) throw new Error('Credenciais inválidas')
+            if (!response.ok) throw new Error('Credenciais inválidas');
 
-            const { token } = await response.json()
-            localStorage.setItem('adminToken', token)
-            setIsLoginModalOpen(false)
-            navigate('/admin')
+            const { token } = await response.json();
+            localStorage.setItem('adminToken', token);
+            setIsLoginModalOpen(false);
+            navigate('/admin');
           } catch (error) {
-            throw error
+            throw error;
           }
         }}
       />
     </>
-  )
+  );
 }
