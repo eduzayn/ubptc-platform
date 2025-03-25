@@ -27,7 +27,7 @@ export function Navbar({
 }: NavbarProps) {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-  // Simplificado para APENAS abrir o modal
+  // SIMPLIFICADO: Agora SEMPRE abre o modal, sem condições
   const handleAdminClick = () => {
     setIsLoginModalOpen(true);
   };
@@ -61,6 +61,7 @@ export function Navbar({
 
           <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
             <div className="w-full flex-1 md:w-auto md:flex-none">
+              {/* REMOVIDO Link, agora é só um botão que abre o modal */}
               <Button
                 variant="ghost"
                 size="icon"
