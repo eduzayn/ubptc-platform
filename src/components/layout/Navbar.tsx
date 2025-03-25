@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Shield, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -26,11 +26,20 @@ export function Navbar({
   onLogout
 }: NavbarProps) {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const navigate = useNavigate();
 
-  const handleAdminClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsLoginModalOpen(true);
+  // MUDANÇA CRUCIAL: Verifica se já está autenticado
+  const handleAdminClick = () => {
+    const token = localStorage.getItem('adminToken');
+    
+    // Se não tiver token, SEMPRE abre o modal
+    if (!token) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+
+    // Se tiver token, navega para o admin
+    navigate('/admin');
   };
 
   return (
@@ -65,7 +74,7 @@ export function Navbar({
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={handleAdminClick}
+                onClick={handleAdminClick} // Usa o novo handler
                 className="relative"
               >
                 <Shield className="h-5 w-5 text-primary" />
@@ -76,7 +85,14 @@ export function Navbar({
               <div className="flex items-center space-x-4">
                 <span className="text-sm font-medium">{username}</span>
                 {onLogout && (
-                  <Button variant="outline" size="sm" onClick={onLogout}>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => {
+                      localStorage.removeItem('adminToken'); // Remove o token ao fazer logout
+                      onLogout();
+                    }}
+                  >
                     Sair
                   </Button>
                 )}
