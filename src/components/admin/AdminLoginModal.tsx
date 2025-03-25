@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { formatCPF } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
 
 interface AdminLoginModalProps {
   isOpen: boolean;
@@ -24,6 +24,7 @@ export function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProps) {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,32 +34,21 @@ export function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProps) {
     try {
       const response = await fetch('/api/admin/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, cpf }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, cpf })
       });
 
-      if (!response.ok) {
-        throw new Error('Credenciais inválidas');
-      }
+      if (!response.ok) throw new Error('Credenciais inválidas');
 
       const { token } = await response.json();
-      localStorage.setItem('adminToken', token);
-      setEmail('');
-      setCpf('');
+      login(token);
       onClose();
       navigate('/admin');
     } catch (error) {
-      setError('Credenciais inválidas. Por favor, tente novamente.');
+      setError('Credenciais inválidas');
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleCPFChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedCPF = formatCPF(e.target.value);
-    setCpf(formattedCPF);
   };
 
   return (
@@ -70,7 +60,7 @@ export function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProps) {
             Acesso Administrativo
           </DialogTitle>
           <DialogDescription>
-            Esta área é restrita a administradores. Por favor, faça login para continuar.
+            Área restrita. Faça login para continuar.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -81,7 +71,6 @@ export function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProps) {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Digite seu email administrativo"
               required
             />
           </div>
@@ -91,9 +80,7 @@ export function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProps) {
               id="cpf"
               type="text"
               value={cpf}
-              onChange={handleCPFChange}
-              placeholder="Digite seu CPF"
-              maxLength={14}
+              onChange={(e) => setCpf(e.target.value)}
               required
             />
           </div>
