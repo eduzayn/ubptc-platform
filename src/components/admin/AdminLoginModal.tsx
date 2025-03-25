@@ -1,49 +1,49 @@
-import { useState } from 'react'
-import { Lock } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { useState } from 'react';
+import { Lock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { formatCPF } from '@/lib/utils'
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { formatCPF } from '@/lib/utils';
 
 interface AdminLoginModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onLogin: (email: string, cpf: string) => Promise<void>
+  isOpen: boolean;
+  onClose: () => void;
+  onLogin: (email: string, cpf: string) => Promise<void>;
 }
 
 export function AdminLoginModal({ isOpen, onClose, onLogin }: AdminLoginModalProps) {
-  const [email, setEmail] = useState('')
-  const [cpf, setCpf] = useState('')
-  const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const [email, setEmail] = useState('');
+  const [cpf, setCpf] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setIsLoading(true)
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
 
     try {
-      await onLogin(email, cpf)
-      setEmail('')
-      setCpf('')
+      await onLogin(email, cpf);
+      setEmail('');
+      setCpf('');
     } catch (error) {
-      setError('Credenciais inválidas. Por favor, tente novamente.')
+      setError('Credenciais inválidas. Por favor, tente novamente.');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleCPFChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedCPF = formatCPF(e.target.value)
-    setCpf(formattedCPF)
-  }
+    const formattedCPF = formatCPF(e.target.value);
+    setCpf(formattedCPF);
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -93,5 +93,5 @@ export function AdminLoginModal({ isOpen, onClose, onLogin }: AdminLoginModalPro
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
