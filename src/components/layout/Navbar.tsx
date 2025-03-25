@@ -30,7 +30,6 @@ export function Navbar({
   const handleAdminClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // Sempre abre o modal, independente de qualquer coisa
     setIsLoginModalOpen(true);
   };
 
@@ -94,3 +93,5 @@ export function Navbar({
     </>
   );
 }
+
+export default Navbar;
