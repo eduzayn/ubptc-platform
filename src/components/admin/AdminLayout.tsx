@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../layout/Navbar';
-import AdminSidebar from './AdminSidebar';
+import { Navbar } from '../layout/Navbar';
+import { AdminSidebar } from './AdminSidebar';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -18,10 +18,6 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     }
   }, [navigate]);
 
-  const toggleSidebar = () => {
-    setShowSidebar(!showSidebar);
-  };
-
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
     navigate('/');
@@ -31,7 +27,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     <div className="min-h-screen bg-gray-50">
       <div className="flex flex-col h-screen">
         <Navbar
-          onMenuToggle={toggleSidebar}
+          onMenuToggle={() => setShowSidebar(!showSidebar)}
           username="Administrador"
           avatarUrl="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin"
           notificationCount={0}
@@ -58,5 +54,3 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     </div>
   );
 }
-
-export default AdminLayout;
