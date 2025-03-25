@@ -1,16 +1,19 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import HomePage from '@/pages/HomePage';
-import AdminLayout from '@/components/admin/AdminLayout';
-import NotFoundPage from '@/pages/NotFoundPage';
+import HomePage from './pages/HomePage';
+import AdminLayout from './components/admin/AdminLayout';
+import NotFoundPage from './pages/NotFoundPage';
 
+// Componente de proteção simplificado
 function RequireAuth({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth();
+  // Verifica se existe token
+  const token = localStorage.getItem('adminToken');
   
-  if (!isAuthenticated) {
+  // Se não tiver token, redireciona para home
+  if (!token) {
     return <Navigate to="/" replace />;
   }
 
+  // Se tiver token, renderiza o conteúdo protegido
   return children;
 }
 
@@ -18,19 +21,5 @@ export function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route
-          path="/admin/*"
-          element={
-            <RequireAuth>
-              <AdminLayout />
-            </RequireAuth>
-          }
-        />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </Router>
-  );
-}
-
-export default App;
+        {/* Rota pública */}
+        <Route path="/" element={
