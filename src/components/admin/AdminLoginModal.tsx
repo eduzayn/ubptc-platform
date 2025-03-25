@@ -1,111 +1,97 @@
-import React, { useState } from 'react';
+import { useState } from 'react'
+import { Lock } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { formatCPF } from '@/lib/utils'
 
 interface AdminLoginModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onLogin: (email: string, cpf: string) => Promise<void>;
+  isOpen: boolean
+  onClose: () => void
+  onLogin: (email: string, cpf: string) => Promise<void>
 }
 
-const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
-  isOpen,
-  onClose,
-  onLogin,
-}) => {
-  const [email, setEmail] = useState("");
-  const [cpf, setCpf] = useState("");
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+export function AdminLoginModal({ isOpen, onClose, onLogin }: AdminLoginModalProps) {
+  const [email, setEmail] = useState('')
+  const [cpf, setCpf] = useState('')
+  const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setIsLoading(true);
+    e.preventDefault()
+    setError('')
+    setIsLoading(true)
 
     try {
-      await onLogin(email, cpf);
-    } catch (err) {
-      setError("E-mail ou CPF inválidos. Verifique suas credenciais.");
+      await onLogin(email, cpf)
+      setEmail('')
+      setCpf('')
+    } catch (error) {
+      setError('Credenciais inválidas. Por favor, tente novamente.')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
-  const formatCPF = (value: string) => {
-    return value
-      .replace(/\D/g, "")
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d{1,2})/, "$1-$2")
-      .replace(/(-\d{2})\d+?$/, "$1");
-  };
+  const handleCPFChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedCPF = formatCPF(e.target.value)
+    setCpf(formattedCPF)
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-center text-xl font-bold">
+          <DialogTitle className="flex items-center gap-2">
+            <Lock className="h-5 w-5" />
             Acesso Administrativo
           </DialogTitle>
+          <DialogDescription>
+            Esta área é restrita a administradores. Por favor, faça login para continuar.
+          </DialogDescription>
         </DialogHeader>
-
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">E-mail administrativo</Label>
+            <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"
-              placeholder="admin@ubptc.com.br"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              placeholder="Digite seu email administrativo"
               required
-              className="w-full"
             />
           </div>
-
           <div className="space-y-2">
-            <Label htmlFor="cpf">CPF do administrador</Label>
+            <Label htmlFor="cpf">CPF</Label>
             <Input
               id="cpf"
-              placeholder="000.000.000-00"
+              type="text"
               value={cpf}
-              onChange={(e) => setCpf(formatCPF(e.target.value))}
+              onChange={handleCPFChange}
+              placeholder="Digite seu CPF"
               maxLength={14}
               required
-              className="w-full"
             />
           </div>
-
-          {error && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          <div className="flex justify-end gap-2 pt-4">
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
-              {isLoading ? "Verificando..." : "Acessar Painel"}
+          {error && <p className="text-sm text-red-500">{error}</p>}
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? 'Entrando...' : 'Entrar'}
             </Button>
           </div>
         </form>
       </DialogContent>
     </Dialog>
-  );
-};
-
-export default AdminLoginModal;
+  )
+}
