@@ -11,35 +11,67 @@ import ProfileSettings from "./ProfileSettings";
 import DigitalCredentials from "./DigitalCredentials";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const ProfilePage = () => {
+// Interfaces
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+  cpf: string;
+  profession: string;
+  institution: string;
+  graduationYear: string;
+  specialization: string;
+  memberSince: string;
+  memberId: string;
+  paymentStatus: 'active' | 'suspended' | 'pending';
+  avatarUrl?: string;
+}
+
+interface Invoice {
+  id: string;
+  date: string;
+  amount: string;
+  status: string;
+}
+
+interface PhotoUploadEvent extends CustomEvent {
+  detail: {
+    photoUrl: string;
+  };
+}
+
+declare global {
+  interface WindowEventMap {
+    'photo3x4Uploaded': PhotoUploadEvent;
+  }
+}
+
+const ProfilePage: React.FC = () => {
   const [showSidebar, setShowSidebar] = useState(true);
-  const navigate = useNavigate();
-  const location = useLocation();
   const [activeTab, setActiveTab] = useState("personal");
   const [documentsComplete, setDocumentsComplete] = useState(false);
   const [userPhotoUrl, setUserPhotoUrl] = useState<string | undefined>(
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Maria",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Maria"
   );
 
-  // Alterna a visibilidade da barra lateral (para responsividade mobile)
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const toggleSidebar = () => {
     setShowSidebar(!showSidebar);
   };
 
-  // Voltar para a página anterior
   const handleBack = () => {
     navigate(-1);
   };
 
-  // Verificar se há um tab específico na URL
-  React.useEffect(() => {
+  useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const tab = searchParams.get("tab");
     if (tab) {
       setActiveTab(tab);
     }
 
-    // Check if we're on the my-courses path
     if (location.pathname.includes("/my-courses")) {
       setActiveTab("my-courses");
     }
@@ -47,12 +79,10 @@ const ProfilePage = () => {
 
   const handleDocumentsComplete = (complete: boolean) => {
     setDocumentsComplete(complete);
-    console.log("Documentos completos:", complete);
   };
 
-  // Escutar evento de upload de foto 3x4
-  React.useEffect(() => {
-    const handlePhotoUpload = (event: any) => {
+  useEffect(() => {
+    const handlePhotoUpload = (event: PhotoUploadEvent) => {
       const { photoUrl } = event.detail;
       setUserPhotoUrl(photoUrl);
     };
@@ -64,8 +94,7 @@ const ProfilePage = () => {
     };
   }, []);
 
-  // Dados do usuário (simulados)
-  const userData = {
+  const userData: UserData = {
     id: "123456",
     name: "Maria Silva",
     email: "maria.silva@email.com",
@@ -76,15 +105,34 @@ const ProfilePage = () => {
     specialization: "Psicanálise",
     memberSince: "15 de Janeiro, 2023",
     memberId: "UBPTC-2023-7845",
-    paymentStatus: "active" as "active" | "suspended",
+    paymentStatus: "active",
     avatarUrl: userPhotoUrl,
   };
 
+  const invoices: Invoice[] = [
+    {
+      id: "INV-001",
+      date: "15/06/2023",
+      amount: "R$ 49,90",
+      status: "Pago",
+    },
+    {
+      id: "INV-002",
+      date: "15/05/2023",
+      amount: "R$ 49,90",
+      status: "Pago",
+    },
+    {
+      id: "INV-003",
+      date: "15/04/2023",
+      amount: "R$ 49,90",
+      status: "Pago",
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Layout Principal */}
       <div className="flex flex-col h-screen">
-        {/* Barra de Navegação Superior */}
         <Navbar
           onMenuToggle={toggleSidebar}
           username="Maria Silva"
@@ -93,16 +141,13 @@ const ProfilePage = () => {
           isAdmin={true}
         />
 
-        {/* Área de Conteúdo Principal com Barra Lateral */}
         <div className="flex flex-1 overflow-hidden">
-          {/* Barra Lateral - mostrada condicionalmente com base no estado e tamanho da tela */}
           <div
             className={`${showSidebar ? "block" : "hidden"} md:block flex-shrink-0`}
           >
             <Sidebar />
           </div>
 
-          {/* Conteúdo Principal */}
           <main className="flex-1 overflow-y-auto p-4 md:p-6">
             <div className="max-w-7xl mx-auto">
               <Tabs
@@ -118,6 +163,7 @@ const ProfilePage = () => {
                   <TabsTrigger value="payment">Pagamento</TabsTrigger>
                   <TabsTrigger value="settings">Configurações</TabsTrigger>
                 </TabsList>
+
                 <TabsContent value="personal" className="mt-6">
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-1">
@@ -130,47 +176,34 @@ const ProfilePage = () => {
                     </div>
                   </div>
                 </TabsContent>
+
                 <TabsContent value="my-courses" className="mt-6">
                   <MyCourses />
                 </TabsContent>
+
                 <TabsContent value="documents" className="mt-6">
                   <DocumentsArchive />
                 </TabsContent>
+
                 <TabsContent value="credentials" className="mt-6">
                   <DigitalCredentials
                     userData={userData}
-                    asaasConfirmed={true}
+                    paymentConfirmed={true}
+                    documentationComplete={documentsComplete}
                   />
                 </TabsContent>
+
                 <TabsContent value="payment" className="mt-6">
                   <PaymentStatus
                     plan="Profissional"
-                    status="active" as "active"
+                    status="active"
                     nextBilling="15/07/2023"
                     amount="R$ 49,90"
                     paymentMethod="Cartão de crédito terminando em 4242"
-                    invoices={[
-                      {
-                        id: "INV-001",
-                        date: "15/06/2023",
-                        amount: "R$ 49,90",
-                        status: "Pago",
-                      },
-                      {
-                        id: "INV-002",
-                        date: "15/05/2023",
-                        amount: "R$ 49,90",
-                        status: "Pago",
-                      },
-                      {
-                        id: "INV-003",
-                        date: "15/04/2023",
-                        amount: "R$ 49,90",
-                        status: "Pago",
-                      },
-                    ]}
+                    invoices={invoices}
                   />
                 </TabsContent>
+
                 <TabsContent value="settings" className="mt-6">
                   <ProfileSettings />
                 </TabsContent>
