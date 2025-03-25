@@ -43,14 +43,11 @@ const Navbar = ({
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const navigate = useNavigate();
 
+  // Modificado para sempre abrir o modal
   const handleAdminClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem('adminToken');
-    if (token) {
-      navigate('/admin');
-    } else {
-      setIsLoginModalOpen(true);
-    }
+    e.stopPropagation();
+    setIsLoginModalOpen(true);
   };
 
   const handleLogin = async (email: string, cpf: string) => {
@@ -112,7 +109,7 @@ const Navbar = ({
           </div>
         </div>
 
-        {/* Right section with join button, notifications and profile */}
+        {/* Right section with buttons */}
         <div className="flex items-center gap-2">
           <Link to="/associe-se">
             <Button className="bg-primary text-white hover:bg-primary/90 mr-2">
@@ -120,24 +117,15 @@ const Navbar = ({
             </Button>
           </Link>
 
-          {/* Botão de Admin com verificação de autenticação */}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={handleAdminClick}
-                  className="relative"
-                >
-                  <Shield className="h-5 w-5 text-primary" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Acesso Administrativo</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          {/* Botão de Admin - Modificado para sempre aparecer */}
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={handleAdminClick}
+            className="relative"
+          >
+            <Shield className="h-5 w-5 text-primary" />
+          </Button>
 
           <TooltipProvider>
             <Tooltip>
@@ -166,7 +154,7 @@ const Navbar = ({
         </div>
       </nav>
 
-      {/* Modal de Login Administrativo */}
+      {/* Modal de Login - Sempre presente no DOM */}
       <AdminLoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
