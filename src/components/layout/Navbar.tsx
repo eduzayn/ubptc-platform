@@ -1,167 +1,84 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Bell, Menu, Search, Shield } from "lucide-react";
-import { cn } from "@/lib/utils";
-import UserMenu from "./UserMenu";
-import AdminLoginModal from '../admin/AdminLoginModal';
+import { useState } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import { Shield, Menu } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { AdminLoginModal } from '@/components/admin/AdminLoginModal'
+import { Logo } from '@/components/Logo'
+import { MobileNav } from '@/components/MobileNav'
+import { MainNav } from '@/components/MainNav'
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+export function Navbar() {
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
+  const navigate = useNavigate()
 
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
-
-interface NavbarProps {
-  onMenuToggle: () => void;
-  username?: string;
-  avatarUrl?: string;
-  notificationCount?: number;
-  isAdmin?: boolean;
-}
-
-const Navbar = ({
-  username = "John Doe",
-  avatarUrl = "",
-  notificationCount = 3,
-  onMenuToggle = () => {},
-  isAdmin = false,
-}: NavbarProps) => {
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const navigate = useNavigate();
-
-  // Modificado para sempre abrir o modal
   const handleAdminClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsLoginModalOpen(true);
-  };
-
-  const handleLogin = async (email: string, cpf: string) => {
-    try {
-      const response = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, cpf }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Credenciais inválidas');
-      }
-
-      const { token } = await response.json();
-      localStorage.setItem('adminToken', token);
-      setIsLoginModalOpen(false);
-      navigate('/admin');
-    } catch (error) {
-      throw error;
-    }
-  };
+    e.preventDefault()
+    e.stopPropagation()
+    setIsLoginModalOpen(true)
+  }
 
   return (
     <>
-      <nav className="w-full h-[70px] bg-background border-b border-border px-4 flex items-center justify-between shadow-sm">
-        {/* Left section with menu toggle and logo */}
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onMenuToggle}
-            className="md:hidden"
-            aria-label="Toggle menu"
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
-
-          <Link to="/" className="flex items-center gap-2">
-            <img
-              src="/images/logo-ubptc.png"
-              alt="UBPTC Logo"
-              className="h-10 w-auto"
-            />
-          </Link>
-        </div>
-
-        {/* Center section with search */}
-        <div className="hidden md:flex items-center max-w-md w-full mx-4">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              type="search"
-              placeholder="Buscar recursos, eventos, membros..."
-              className="w-full pl-10 pr-4 py-2 rounded-full bg-accent/50"
-            />
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <nav className="container flex h-14 items-center">
+          <div className="mr-4 hidden md:flex">
+            <Link to="/" className="mr-6 flex items-center space-x-2">
+              <Logo />
+            </Link>
+            <MainNav />
           </div>
-        </div>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                className="mr-2 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
+              >
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle Menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="pr-0">
+              <MobileNav />
+            </SheetContent>
+          </Sheet>
+          <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+            <div className="w-full flex-1 md:w-auto md:flex-none">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleAdminClick}
+                className="relative"
+              >
+                <Shield className="h-5 w-5 text-primary" />
+              </Button>
+            </div>
+          </div>
+        </nav>
+      </header>
 
-        {/* Right section with buttons */}
-        <div className="flex items-center gap-2">
-          <Link to="/associe-se">
-            <Button className="bg-primary text-white hover:bg-primary/90 mr-2">
-              Associe-se
-            </Button>
-          </Link>
-
-          {/* Botão de Admin - Modificado para sempre aparecer */}
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={handleAdminClick}
-            className="relative"
-          >
-            <Shield className="h-5 w-5 text-primary" />
-          </Button>
-
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative">
-                  <Bell className="h-5 w-5" />
-                  {notificationCount > 0 && (
-                    <span className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                      {notificationCount}
-                    </span>
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Notificações</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <UserMenu
-            username={username}
-            avatarUrl={avatarUrl}
-            notificationCount={notificationCount}
-            isAdmin={isAdmin}
-          />
-        </div>
-      </nav>
-
-      {/* Modal de Login - Sempre presente no DOM */}
       <AdminLoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
-        onLogin={handleLogin}
+        onLogin={async (email, cpf) => {
+          try {
+            const response = await fetch('/api/admin/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, cpf })
+            })
+
+            if (!response.ok) throw new Error('Credenciais inválidas')
+
+            const { token } = await response.json()
+            localStorage.setItem('adminToken', token)
+            setIsLoginModalOpen(false)
+            navigate('/admin')
+          } catch (error) {
+            throw error
+          }
+        }}
       />
     </>
-  );
-};
-
-export default Navbar;
+  )
+}
