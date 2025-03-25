@@ -1,17 +1,21 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import AdminLayout from './components/admin/AdminLayout';
-import NotFoundPage from './pages/NotFoundPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import NotFoundPage from './pages/NotFoundPage';
 
-function RequireAuth({ children }: { children: React.ReactNode }) {
+interface RequireAuthProps {
+  children: React.ReactNode;
+}
+
+function RequireAuth({ children }: RequireAuthProps) {
   const token = localStorage.getItem('adminToken');
   
   if (!token) {
     return <Navigate to="/" replace />;
   }
 
-  return children;
+  return <>{children}</>;
 }
 
 export function App() {
@@ -26,6 +30,7 @@ export function App() {
               <AdminLayout>
                 <Routes>
                   <Route index element={<AdminDashboard />} />
+                  {/* Adicione outras rotas administrativas aqui */}
                 </Routes>
               </AdminLayout>
             </RequireAuth>
