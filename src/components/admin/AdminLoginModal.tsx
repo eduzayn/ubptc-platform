@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAuth } from '@/hooks/useAuth';
 
 interface AdminLoginModalProps {
   isOpen: boolean;
@@ -24,7 +23,6 @@ export function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProps) {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,18 +32,24 @@ export function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProps) {
     try {
       const response = await fetch('/api/admin/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, cpf })
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, cpf }),
       });
 
-      if (!response.ok) throw new Error('Credenciais inválidas');
+      if (!response.ok) {
+        throw new Error('Credenciais inválidas');
+      }
 
       const { token } = await response.json();
-      login(token);
+      localStorage.setItem('adminToken', token);
+      setEmail('');
+      setCpf('');
       onClose();
       navigate('/admin');
     } catch (error) {
-      setError('Credenciais inválidas');
+      setError('Credenciais inválidas. Por favor, tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -60,7 +64,7 @@ export function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProps) {
             Acesso Administrativo
           </DialogTitle>
           <DialogDescription>
-            Área restrita. Faça login para continuar.
+            Esta área é restrita a administradores. Por favor, faça login para continuar.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -71,6 +75,7 @@ export function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProps) {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              placeholder="Digite seu email administrativo"
               required
             />
           </div>
@@ -81,6 +86,8 @@ export function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProps) {
               type="text"
               value={cpf}
               onChange={(e) => setCpf(e.target.value)}
+              placeholder="Digite seu CPF"
+              maxLength={14}
               required
             />
           </div>
